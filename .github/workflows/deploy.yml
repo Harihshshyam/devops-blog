@@ -1,0 +1,31 @@
+name: Deploy Blog to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Copy files to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@13.200.251.71<< 'EOF'
+          cd devops-blog
+          git pull origin main
+          docker stop blog-container || true
+          docker rm blog-container || true
+          docker build -t devops-blog .
+          docker run -d -p 80:80 --name blog-container devops-blog
+        EOF
+
