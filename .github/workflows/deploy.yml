@@ -18,10 +18,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Copy files to EC2
+    - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@13.200.251.71<< 'EOF'
-          cd devops-blog
+        ssh -o StrictHostKeyChecking=no ubuntu@13.200.251.71 << 'EOF'
+          cd devops-blog || git clone https://github.com/harihshshyam/devops-blog.git && cd devops-blog
           git pull origin main
           docker stop blog-container || true
           docker rm blog-container || true
